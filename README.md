@@ -1,20 +1,23 @@
-# Mental Arithmetic Experiment Web App
+# Mental Arithmetic Experiment
 
-A Flask-based web application to measure mental arithmetic performance across three experimental conditions.
+A Flask web application for conducting mental arithmetic experiments with three different testing conditions.
 
 ## Features
 
-- **Step 1**: Normal problem display
-- **Step 2**: Audio interruptions with random spoken problems (using gTTS)
-- **Step 3**: Visual interruptions with moving text and random shapes
+### Step 1: Basic Addition
+- 30 three-digit addition problems
+- Measures time to first input and total completion time
 
-## Measurements
+### Step 2: Addition with Verbal Task
+- 30 addition problems while speaking continuously
+- Microphone monitoring with beep warnings for low volume
+- Microphone check before starting
 
-For each problem, the app measures:
-- Time from problem display to first input (reaction time)
-- Time from problem display to answer submission (total time)
-- Input duration
-- User's answer vs. correct answer
+### Step 3: Addition with Grid Memorization
+- Memorize a 5x5 grid for 5 seconds
+- Solve addition problem
+- Recall grid configuration
+- Measures grid recall accuracy
 
 ## Setup
 
@@ -28,22 +31,42 @@ pip install -r requirements.txt
 python app.py
 ```
 
-3. Open your browser and navigate to:
-```
-http://localhost:5000
-```
+3. Open your browser to: http://localhost:5000
 
 ## Data Collection
 
-- Each participant's results are saved in the `results/` directory
-- Data is saved as JSON with timing information for all 60 problems (20 per step)
-- Files include participant ID, student ID, name, methodology description, and all timing data
+- All timing data is measured in milliseconds
+- Results are saved in the `results/` directory
+- Each participant's data is saved as: `{student_id}_{timestamp}.json`
 
-## Experiment Structure
+## Result Format
 
-1. 20 problems with normal display
-2. 20 problems with audio interruptions
-3. 20 problems with visual interruptions
-4. Post-experiment questionnaire
+```json
+{
+  "student_id": "string",
+  "name": "string",
+  "description": "string",
+  "timestamp": "ISO 8601 timestamp",
+  "step1": [/* 30 problem results */],
+  "step2": [/* 30 problem results */],
+  "step3": [/* 30 problem results with grid data */]
+}
+```
 
-All problems are loaded from `addition_sets.json`.
+Each problem result includes:
+- `problem_number`: Problem sequence number (1-30)
+- `a`, `b`: The two addends
+- `correct_answer`: Sum of a + b
+- `user_answer`: User's answer
+- `is_correct`: Boolean accuracy
+- `time_to_first_input`: Milliseconds until first keystroke
+- `time_to_completion`: Milliseconds until Enter pressed
+- `difficulty`: Difficulty rating from problem set
+- `grid_problem`: (Step 3 only) Original grid values
+- `grid_recall`: (Step 3 only) User's recalled grid state
+- `grid_accuracy`: (Step 3 only) Percentage accuracy of recall
+
+## Browser Requirements
+
+- Modern browser with Web Audio API support (Chrome, Firefox, Edge, Safari)
+- Microphone access required for Step 2

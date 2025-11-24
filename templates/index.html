@@ -10,466 +10,194 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-
-        #experiment-container {
-            width: 100vw;
-            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
+            min-height: 100vh;
+            background-color: #f0f0f0;
         }
-
+        
+        #container {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+        
         #problem-display {
             font-size: 48px;
             font-weight: bold;
-            margin-bottom: 30px;
-            text-align: center;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            margin: 40px 0;
+            min-height: 80px;
         }
-
+        
         #answer-input {
-            font-size: 24px;
+            font-size: 32px;
             padding: 10px 20px;
+            width: 300px;
             text-align: center;
             border: 2px solid #333;
-            width: 200px;
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            border-radius: 5px;
         }
-
-        #instruction {
+        
+        .button {
             font-size: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        #start-button, #next-step-button {
-            font-size: 18px;
-            padding: 15px 40px;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
-            cursor: pointer;
             border-radius: 5px;
         }
-
-        #start-button:hover, #next-step-button:hover {
+        
+        .button:hover {
             background-color: #45a049;
         }
-
-        #info-form {
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-            width: 400px;
+        
+        #grid-display {
+            display: inline-grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-gap: 5px;
+            margin: 20px auto;
         }
-
-        #info-form input, #info-form textarea {
+        
+        .grid-cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .grid-cell.filled {
+            background-color: #333;
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #info-display {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
             font-size: 16px;
             padding: 10px;
+            width: 100%;
+            max-width: 500px;
             border: 2px solid #333;
-        }
-
-        #info-form textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        #submit-button {
-            font-size: 18px;
-            padding: 15px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            cursor: pointer;
             border-radius: 5px;
         }
-
-        #submit-button:hover {
-            background-color: #0b7dda;
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
         }
-
-        .hidden {
-            display: none !important;
+        
+        #mic-status {
+            font-size: 20px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
         }
-
-        /* For Step 3 visual interruptions */
-        .shape {
-            position: absolute;
-            z-index: -1;
+        
+        #mic-status.active {
+            background-color: #90EE90;
         }
-
-        #completion-message {
-            font-size: 24px;
-            text-align: center;
+        
+        #mic-status.warning {
+            background-color: #FFB6C1;
         }
     </style>
 </head>
 <body>
-    <div id="experiment-container">
+    <div id="container">
         <div id="start-screen">
-            <div id="instruction">Click the button to start the experiment</div>
-            <button id="start-button">Start Experiment</button>
+            <h1>Mental Arithmetic Experiment</h1>
+            <p style="margin: 20px 0; font-size: 18px;">This experiment consists of 3 steps with 30 problems each.</p>
+            <button class="button" onclick="startExperiment()">Start Experiment</button>
         </div>
-
+        
+        <div id="step-intro-screen" class="hidden">
+            <h2 id="step-title"></h2>
+            <p id="step-description" style="margin: 20px 0; font-size: 18px;"></p>
+            <button id="start-step-button" class="button"></button>
+        </div>
+        
+        <div id="mic-check-screen" class="hidden">
+            <h2>Microphone Check</h2>
+            <p style="margin: 20px 0; font-size: 18px;">Please say a word repeatedly to test your microphone.</p>
+            <div id="mic-status">Checking microphone...</div>
+            <button class="button" onclick="finishMicCheck()">Continue to Step 2</button>
+        </div>
+        
+        <div id="grid-memorize-screen" class="hidden">
+            <h2>Memorize this grid (<span id="grid-timer">5</span>s)</h2>
+            <div id="grid-display"></div>
+        </div>
+        
         <div id="problem-screen" class="hidden">
+            <div id="info-display"></div>
             <div id="problem-display"></div>
-            <input type="number" id="answer-input" class="hidden" autocomplete="off">
+            <input type="text" id="answer-input" class="hidden" autocomplete="off">
         </div>
-
-        <div id="step-transition" class="hidden">
-            <div id="instruction"></div>
-            <button id="next-step-button">Continue</button>
+        
+        <div id="grid-recall-screen" class="hidden">
+            <h2>Recall the grid (click cells to toggle)</h2>
+            <div id="grid-recall"></div>
+            <button class="button" onclick="submitGridRecall()">Submit</button>
         </div>
-
-        <div id="info-form" class="hidden">
-            <h2 style="text-align: center;">Experiment Complete!</h2>
-            <input type="text" id="student-id" placeholder="Student ID" required>
-            <input type="text" id="name" placeholder="Name" required>
-            <textarea id="description" placeholder="Describe how you performed mental arithmetic (e.g., carried digits, used patterns, etc.)" required></textarea>
-            <button id="submit-button">Submit</button>
+        
+        <div id="info-form-screen" class="hidden">
+            <h2>Experiment Complete!</h2>
+            <div class="form-group">
+                <label for="student-id">Student ID:</label>
+                <input type="text" id="student-id" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">How do you perform mental arithmetic?</label>
+                <textarea id="description" placeholder="Describe your mental arithmetic strategy..."></textarea>
+            </div>
+            <button class="button" onclick="submitResults()">Submit Results</button>
         </div>
-
-        <div id="completion-message" class="hidden">
+        
+        <div id="completion-screen" class="hidden">
             <h2>Thank you for participating!</h2>
-            <p>Your results have been saved.</p>
+            <p style="margin: 20px 0; font-size: 18px;">Your results have been saved.</p>
         </div>
     </div>
-
-    <script>
-        // Global state
-        let currentStep = 0;
-        let currentProblemIndex = 0;
-        let problems = [];
-        let timingData = [];
-        let problemStartTime = null;
-        let inputStartTime = null;
-        let audioInterval = null;
-        let visualInterval = null;
-        let currentAudioUrl = null;
-
-        // DOM elements
-        const startScreen = document.getElementById('start-screen');
-        const problemScreen = document.getElementById('problem-screen');
-        const stepTransition = document.getElementById('step-transition');
-        const problemDisplay = document.getElementById('problem-display');
-        const answerInput = document.getElementById('answer-input');
-        const instruction = document.getElementById('instruction');
-        const startButton = document.getElementById('start-button');
-        const nextStepButton = document.getElementById('next-step-button');
-        const infoForm = document.getElementById('info-form');
-        const completionMessage = document.getElementById('completion-message');
-        const experimentContainer = document.getElementById('experiment-container');
-
-        // Start experiment
-        startButton.addEventListener('click', () => {
-            currentStep = 1;
-            loadStep();
-        });
-
-        // Load step
-        async function loadStep() {
-            startScreen.classList.add('hidden');
-            stepTransition.classList.add('hidden');
-            problemScreen.classList.remove('hidden');
-            
-            currentProblemIndex = 0;
-            
-            // Fetch problems for this step
-            const response = await fetch(`/get_problems/${currentStep}`);
-            problems = await response.json();
-            
-            // Show first problem
-            showProblem();
-        }
-
-        // Show problem
-        function showProblem() {
-            if (currentProblemIndex >= problems.length) {
-                finishStep();
-                return;
-            }
-
-            const problem = problems[currentProblemIndex];
-            problemDisplay.textContent = `${problem.a} + ${problem.b}`;
-            answerInput.value = '';
-            answerInput.classList.add('hidden');
-            
-            problemStartTime = Date.now();
-            inputStartTime = null;
-
-            // Apply step-specific effects
-            if (currentStep === 1) {
-                setupStep1();
-            } else if (currentStep === 2) {
-                setupStep2();
-            } else if (currentStep === 3) {
-                setupStep3();
-            }
-        }
-
-        // Step 1: Normal display
-        function setupStep1() {
-            // Reset styles
-            problemDisplay.style.position = 'absolute';
-            problemDisplay.style.top = '50%';
-            problemDisplay.style.left = '50%';
-            problemDisplay.style.transform = 'translate(-50%, -50%)';
-            experimentContainer.style.backgroundColor = 'white';
-            
-            // Clear any shapes
-            document.querySelectorAll('.shape').forEach(el => el.remove());
-            
-            // Show input on any key press
-            showInputOnKeyPress();
-        }
-
-        // Step 2: Audio interruptions
-        function setupStep2() {
-            // Reset styles
-            problemDisplay.style.position = 'absolute';
-            problemDisplay.style.top = '50%';
-            problemDisplay.style.left = '50%';
-            problemDisplay.style.transform = 'translate(-50%, -50%)';
-            experimentContainer.style.backgroundColor = 'white';
-            
-            // Clear any shapes
-            document.querySelectorAll('.shape').forEach(el => el.remove());
-            
-            // Start playing random audio
-            playRandomAudio();
-            audioInterval = setInterval(playRandomAudio, 3000 + Math.random() * 2000); // Every 3-5 seconds
-            
-            showInputOnKeyPress();
-        }
-
-        async function playRandomAudio() {
-            // Clean up previous audio
-            if (currentAudioUrl) {
-                await fetch('/cleanup_audio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ audio_url: currentAudioUrl })
-                });
-            }
-
-            const a = Math.floor(Math.random() * 900) + 100;
-            const b = Math.floor(Math.random() * 900) + 100;
-            
-            const response = await fetch('/generate_audio', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ a, b })
-            });
-            
-            const data = await response.json();
-            currentAudioUrl = data.audio_url;
-            
-            const audio = new Audio(data.audio_url);
-            audio.play();
-        }
-
-        // Step 3: Visual interruptions
-        function setupStep3() {
-            experimentContainer.style.backgroundColor = 'white';
-            
-            // Move problem text around
-            visualInterval = setInterval(() => {
-                const x = Math.random() * (window.innerWidth - 400) + 200;
-                const y = Math.random() * (window.innerHeight - 300) + 150;
-                
-                problemDisplay.style.position = 'absolute';
-                problemDisplay.style.left = x + 'px';
-                problemDisplay.style.top = y + 'px';
-                problemDisplay.style.transform = 'translate(-50%, -50%)';
-                
-                // Add random shapes
-                addRandomShape();
-                
-                // Random background color
-                const colors = ['#ffebee', '#e3f2fd', '#e8f5e9', '#fff3e0', '#f3e5f5', '#e0f2f1'];
-                experimentContainer.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            }, 1000);
-            
-            showInputOnKeyPress();
-        }
-
-        function addRandomShape() {
-            // Limit number of shapes
-            const shapes = document.querySelectorAll('.shape');
-            if (shapes.length > 10) {
-                shapes[0].remove();
-            }
-
-            const shape = document.createElement('div');
-            shape.className = 'shape';
-            
-            const size = Math.random() * 100 + 50;
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            
-            shape.style.width = size + 'px';
-            shape.style.height = size + 'px';
-            shape.style.left = x + 'px';
-            shape.style.top = y + 'px';
-            
-            const shapeType = Math.random() > 0.5 ? 'circle' : 'square';
-            if (shapeType === 'circle') {
-                shape.style.borderRadius = '50%';
-            }
-            
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731', '#5f27cd', '#00d2d3'];
-            shape.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            shape.style.opacity = '0.3';
-            
-            experimentContainer.appendChild(shape);
-        }
-
-        // Show input on key press
-        function showInputOnKeyPress() {
-            const handler = (e) => {
-                if (!inputStartTime && !answerInput.classList.contains('hidden')) {
-                    return; // Already shown
-                }
-                
-                if (!inputStartTime) {
-                    inputStartTime = Date.now();
-                    answerInput.classList.remove('hidden');
-                    answerInput.focus();
-                }
-            };
-            
-            // Remove old listeners and add new one
-            document.removeEventListener('keydown', handler);
-            document.addEventListener('keydown', handler, { once: false });
-        }
-
-        // Handle answer submission
-        answerInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter') {
-                const finishTime = Date.now();
-                const problem = problems[currentProblemIndex];
-                
-                const timingEntry = {
-                    step: currentStep,
-                    problem_index: currentProblemIndex,
-                    problem_a: problem.a,
-                    problem_b: problem.b,
-                    problem_diff: problem.diff,
-                    user_answer: parseInt(answerInput.value) || null,
-                    correct_answer: problem.a + problem.b,
-                    time_to_start_input: inputStartTime - problemStartTime,
-                    time_to_finish: finishTime - problemStartTime,
-                    input_duration: finishTime - inputStartTime
-                };
-                
-                timingData.push(timingEntry);
-                
-                // Save to server
-                await fetch('/save_timing', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(timingEntry)
-                });
-                
-                currentProblemIndex++;
-                showProblem();
-            }
-        });
-
-        // Finish step
-        function finishStep() {
-            // Clean up intervals
-            if (audioInterval) {
-                clearInterval(audioInterval);
-                audioInterval = null;
-            }
-            if (visualInterval) {
-                clearInterval(visualInterval);
-                visualInterval = null;
-            }
-            
-            // Clean up audio
-            if (currentAudioUrl) {
-                fetch('/cleanup_audio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ audio_url: currentAudioUrl })
-                });
-                currentAudioUrl = null;
-            }
-            
-            // Reset styles
-            experimentContainer.style.backgroundColor = 'white';
-            document.querySelectorAll('.shape').forEach(el => el.remove());
-            
-            problemScreen.classList.add('hidden');
-            
-            if (currentStep < 3) {
-                // Show transition screen
-                currentStep++;
-                stepTransition.classList.remove('hidden');
-                
-                let stepDescription = '';
-                if (currentStep === 2) {
-                    stepDescription = 'Step 1 complete! In Step 2, you will hear random number problems while solving. Try to focus on the displayed problem.';
-                } else if (currentStep === 3) {
-                    stepDescription = 'Step 2 complete! In Step 3, the problem will move around and shapes will appear. Stay focused on the problem.';
-                }
-                
-                instruction.textContent = stepDescription;
-            } else {
-                // Show info form
-                showInfoForm();
-            }
-        }
-
-        nextStepButton.addEventListener('click', () => {
-            loadStep();
-        });
-
-        // Show info form
-        function showInfoForm() {
-            stepTransition.classList.add('hidden');
-            infoForm.style.display = 'flex';
-        }
-
-        // Submit results
-        document.getElementById('submit-button').addEventListener('click', async () => {
-            const studentId = document.getElementById('student-id').value;
-            const name = document.getElementById('name').value;
-            const description = document.getElementById('description').value;
-            
-            if (!studentId || !name || !description) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            await fetch('/save_results', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    student_id: studentId,
-                    name: name,
-                    description: description
-                })
-            });
-            
-            infoForm.style.display = 'none';
-            completionMessage.classList.remove('hidden');
-        });
-    </script>
+    
+    <audio id="beep-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZQQ0PVqzn77BdGAg+ltryxnMpBSl+zPLZiTkHGmS57OihUBELTKXh8bllHAU2jdXzzn0vBS1+zPDajz0IFF207ueYSA0IQKHR8cRzKgUsgs7z2Ik4BxtpvOzno1ETDkyn5PC9Yx0FNozV8tCBMAYeb8Hv45hCDw5TqeXwtmQdCDuP1vLGeykEKn/M8tmJOQcbaMDs56NSDgtNpuLyvmUcBTaM1fLQgDAGHm7A7+OYQg8OU6nl8LZkHQk6j9byznoqBSp/y/HZijkHHGjA7OejUg4LTKbi8r5lHAU2jNXy0IAwBh5uwO/jmEIPDlOp5fC2ZB0JOpDW8s5+KgUqfsvx2Yo5Bxxowezno1IOC0yl4vK+ZRwFNozU8tCAMAYfbsHv45hCDw5TqeXwtmQdCTqQ1vLOfisFKn7L8dmKOQcbaMDs56NTDgtMpeLyv2UcBTaM1PLQgDAGHm7A7+OYQg8PUqjl8LZkHQk6j9byznspBSp+y/HZijkHG2jA7OejUw4LTKPi8r9mHAU2i9Ty0IAwBh5uwe/jmEIPD1Ko5fC2ZB4JOo/W8s57KgUqfsvx2Yo5BxtowOzno1MPC0yj4vK/ZhwFNovV8tCAMAYfbsHv45hCDw9Sp+XwtmQeCTqP1vLOeysFKn7L8dmKOQcbaMDs56NTDgtMo+Lyv2YcBTaL1fLQgDAGH27B7+OYQg8PUqfl8LZkHgk6j9byznsqBSp+y/HZijkHG2jA7OejUw4LTKPi8r9mHAU2i9Xy0IAwBh9uwu/jmEIPDlKo5fC2ZB4JOo/W8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNovV8tCAMAYfbsLv45hCDw5SqOXwtmQeCTqP1vLOeyoFKn7L8dmKOQcbaMDs56RTDgtMpOLyvmUcBTaK1fPRgC8GHm3C7+OYQg8PUqjl8LZkHgk6j9byznsqBSp+y/HZijkHG2jA7OekUw4LTKTi8r5lHAU2itXz0YAvBh9twu/jmEMPDlKo5fC2ZB4JOpDW8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNorV89GALwYfbcLv45hDDw5SqOXwtmQeCTqQ1vLOeyoFKn7L8dmKOQcbaMDs56RTDgtMpOLyvmUcBTaK1fPRgC8GH23C7+OYQw8OUqjl8LZkHgk6kNbyznsqBSp+y/HZijkHG2jA7OekUw4LTKTi8r5lHAU2itXz0YAvBh9twu/jmEMPDlKo5fC2ZB4JOpDW8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNorV89GALwYfbcLv45hDDw5SqOXwtmQeCTqQ1vLOeyoFKn7L8dmKOQcbaMDs56RTDgtMpOLyvmUcBTaK1fPRgC8GH23C7+OYQw8OUqjl8LZkHgk6kNbyznsqBSp+y/HZijkHG2jA7OekUw4LTKTi8r5lHAU2itXz0YAvBh9twu/jmEMPDlKo5fC2ZB4JOpDW8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNorV89GALwYfbcLv45hDDw5SqOXwtmQeCTqQ1vLOeyoFKn7L8dmKOQcbaMDs56RTDgtMpOLyvmUcBTaK1fPRgC8GH23C7+OYQg8PUqjl8LZkHgk6kNbyznsqBSp+y/HZijkHG2jA7OekUw4LTKTi8r5lHAU2itXz0YAvBh9twu/jmEIPD1Ko5fC2ZB4JOpDW8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNorV89GALwYfbcLv45hCDw9SqOXwtmQeCTqQ1vLOeyoFKn7L8dmKOQcbaMDs56RTDgtMpOLyvmUcBTaK1fPRgC8GH23C7+OYQg8PUqjl8LZkHgk6kNbyznsqBSp+y/HZijkHG2jA7OekUw4LTKTi8r5lHAU2itXz0YAvBh9twu/jmEIPD1Ko5fC2ZB4JOpDW8s57KgUqfsvx2Yo5BxtowOznpFMOC0yk4vK+ZRwFNorV89GALwYfbcLv45hCDw9SqOXwtmQeCTqQ1vLOe=" type="audio/wav">
+    </audio>
+    
+    <script src="{{ url_for('static', filename='experiment.js') }}"></script>
 </body>
 </html>
