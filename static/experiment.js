@@ -6,6 +6,8 @@ let currentStep = 0;
 let currentProblem = 0;
 let problemData = null;
 let gridData = null;
+let stepOrder = []; // Randomized order of steps
+let stepIndex = 0; // Current position in stepOrder
 let results = {
     step1: [],
     step2: [],
@@ -49,7 +51,16 @@ async function loadProblems() {
 // Start experiment
 async function startExperiment() {
     await loadProblems();
-    currentStep = 1;
+    
+    // Randomize step order
+    stepOrder = [1, 2, 3];
+    for (let i = stepOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [stepOrder[i], stepOrder[j]] = [stepOrder[j], stepOrder[i]];
+    }
+    
+    stepIndex = 0;
+    currentStep = stepOrder[stepIndex];
     currentProblem = 0;
     showStepIntro();
 }
@@ -61,19 +72,19 @@ function showStepIntro() {
     const startButton = document.getElementById('start-step-button');
     
     if (currentStep === 1) {
-        stepTitle.textContent = 'Step 1: Basic Addition';
+        stepTitle.textContent = 'Basic Addition';
         stepDescription.textContent = `Solve ${PROBLEMS_PER_STEP} addition problems. Enter your answer and press Enter.`;
-        startButton.textContent = 'Start Step 1';
+        startButton.textContent = 'Start';
         startButton.onclick = () => startStep(1);
     } else if (currentStep === 2) {
-        stepTitle.textContent = 'Step 2: Addition with Verbal Task';
+        stepTitle.textContent = 'Addition with Verbal Task';
         stepDescription.textContent = `Solve ${PROBLEMS_PER_STEP} addition problems while saying a word repeatedly. Your microphone will monitor your voice.`;
         startButton.textContent = 'Start Microphone Check';
         startButton.onclick = startMicCheck;
     } else if (currentStep === 3) {
-        stepTitle.textContent = 'Step 3: Addition with Grid Memorization';
+        stepTitle.textContent = 'Addition with Grid Memorization';
         stepDescription.textContent = 'Memorize a 5x5 grid for 5 seconds, then solve the problem and recall the grid.';
-        startButton.textContent = 'Start Step 3';
+        startButton.textContent = 'Start';
         startButton.onclick = () => startStep(3);
     }
     
@@ -109,7 +120,7 @@ async function startMicCheck() {
             }
         }, 100);
     } catch (err) {
-        alert('Microphone access denied. Please allow microphone access for Step 2.');
+        alert('Microphone access denied. Please allow microphone access.');
         console.error('Microphone error:', err);
     }
 }
@@ -431,8 +442,10 @@ function finishStep() {
         }
     }
     
-    if (currentStep < 3) {
-        currentStep++;
+    stepIndex++;
+    if (stepIndex < stepOrder.length) {
+        // Move to next step in randomized order
+        currentStep = stepOrder[stepIndex];
         showStepIntro();
     } else {
         // All steps complete, show info form
@@ -461,6 +474,7 @@ async function submitResults() {
         name: name,
         description: description,
         timestamp: new Date().toISOString(),
+        step_order: stepOrder,
         step1: results.step1,
         step2: results.step2,
         step3: results.step3
