@@ -270,13 +270,12 @@ function handleAnswerSubmit(e) {
             results.step3.push(result);
         }
         
-        currentProblem++;
-        
         if (currentStep === 3) {
-            // Show grid recall
+            // Show grid recall (don't increment counter yet)
             showGridRecall();
         } else {
-            // Next problem
+            // Increment and show next problem for steps 1 and 2
+            currentProblem++;
             showNextProblem();
         }
     }
