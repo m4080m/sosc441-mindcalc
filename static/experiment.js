@@ -123,7 +123,6 @@ function finishMicCheck() {
 
 // Monitor microphone during Step 2
 function startMicMonitoring() {
-    const beepSound = document.getElementById('beep-sound');
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     
     const checkVolume = () => {
@@ -137,7 +136,7 @@ function startMicMonitoring() {
         if (average < LOW_VOLUME_THRESHOLD) {
             if (!lowVolumeTimer) {
                 lowVolumeTimer = setTimeout(() => {
-                    beepSound.play();
+                    playBeep();
                     lowVolumeTimer = null;
                 }, LOW_VOLUME_WARNING_TIME);
             }
@@ -152,6 +151,25 @@ function startMicMonitoring() {
     };
     
     checkVolume();
+}
+
+// Play beep sound using Web Audio API
+function playBeep() {
+    const beepContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = beepContext.createOscillator();
+    const gainNode = beepContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(beepContext.destination);
+    
+    oscillator.frequency.value = 800; // Hz
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, beepContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, beepContext.currentTime + 0.5);
+    
+    oscillator.start(beepContext.currentTime);
+    oscillator.stop(beepContext.currentTime + 0.5);
 }
 
 // Start a step
@@ -273,15 +291,17 @@ function showGridMemorization() {
     const gridDisplay = document.getElementById('grid-display');
     gridDisplay.innerHTML = '';
     
-    // Create 5x5 grid
-    for (let i = 0; i < 5; i++) {
-        for (let j = 0; j < 5; j++) {
-            const cell = document.createElement('div');
-            cell.className = 'grid-cell';
-            const value = currentGridProblem[i * 5 + j];
-            cell.textContent = value;
-            gridDisplay.appendChild(cell);
+    // Create 5x5 grid with filled cells based on indices
+    // currentGridProblem contains indices (0-24) of cells that should be filled
+    const filledIndices = new Set(currentGridProblem);
+    
+    for (let i = 0; i < 25; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        if (filledIndices.has(i)) {
+            cell.classList.add('filled');
         }
+        gridDisplay.appendChild(cell);
     }
     
     // Countdown timer
@@ -335,12 +355,15 @@ function toggleGridCell(e) {
 // Submit grid recall
 function submitGridRecall() {
     // Calculate accuracy
+    // currentGridProblem contains indices of cells that should be filled
+    const filledIndices = new Set(currentGridProblem);
     let correct = 0;
+    
     for (let i = 0; i < 25; i++) {
-        const actualValue = currentGridProblem[i];
+        const shouldBeFilled = filledIndices.has(i);
         const recalled = gridRecallState[i];
-        // Grid cells with values are "filled", we check if user recalled them correctly
-        if (recalled === (actualValue > 0)) {
+        
+        if (recalled === shouldBeFilled) {
             correct++;
         }
     }
