@@ -1,3 +1,6 @@
+// Configuration
+const PROBLEMS_PER_STEP = 5;
+
 // Experiment state
 let currentStep = 0;
 let currentProblem = 0;
@@ -58,12 +61,12 @@ function showStepIntro() {
     
     if (currentStep === 1) {
         stepTitle.textContent = 'Step 1: Basic Addition';
-        stepDescription.textContent = 'Solve 30 addition problems. Enter your answer and press Enter.';
+        stepDescription.textContent = `Solve ${PROBLEMS_PER_STEP} addition problems. Enter your answer and press Enter.`;
         startButton.textContent = 'Start Step 1';
         startButton.onclick = () => startStep(1);
     } else if (currentStep === 2) {
         stepTitle.textContent = 'Step 2: Addition with Verbal Task';
-        stepDescription.textContent = 'Solve 30 addition problems while saying a word repeatedly. Your microphone will monitor your voice.';
+        stepDescription.textContent = `Solve ${PROBLEMS_PER_STEP} addition problems while saying a word repeatedly. Your microphone will monitor your voice.`;
         startButton.textContent = 'Start Microphone Check';
         startButton.onclick = startMicCheck;
     } else if (currentStep === 3) {
@@ -124,7 +127,7 @@ function startMicMonitoring() {
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     
     const checkVolume = () => {
-        if (currentStep !== 2 || currentProblem >= 30) {
+        if (currentStep !== 2 || currentProblem >= PROBLEMS_PER_STEP) {
             return; // Stop monitoring after Step 2
         }
         
@@ -165,7 +168,7 @@ function startStep(step) {
 
 // Show next problem
 function showNextProblem() {
-    if (currentProblem >= 30) {
+    if (currentProblem >= PROBLEMS_PER_STEP) {
         // Step complete
         finishStep();
         return;
@@ -190,7 +193,7 @@ function displayProblem(problem) {
     const problemDisplay = document.getElementById('problem-display');
     const answerInput = document.getElementById('answer-input');
     
-    infoDisplay.textContent = `Step ${currentStep} - Problem ${currentProblem + 1}/30`;
+    infoDisplay.textContent = `Step ${currentStep} - Problem ${currentProblem + 1}/${PROBLEMS_PER_STEP}`;
     problemDisplay.textContent = `${problem.a} + ${problem.b}`;
     
     answerInput.value = '';
