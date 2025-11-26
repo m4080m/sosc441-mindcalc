@@ -139,6 +139,7 @@ function startMicMonitoring() {
             if (!lowVolumeTimer) {
                 lowVolumeTimer = setTimeout(() => {
                     playBeep();
+                    showLowVoiceWarning();
                     lowVolumeTimer = null;
                 }, LOW_VOLUME_WARNING_TIME);
             }
@@ -147,12 +148,34 @@ function startMicMonitoring() {
                 clearTimeout(lowVolumeTimer);
                 lowVolumeTimer = null;
             }
+            // Clear warning when voice is detected
+            clearLowVoiceWarning();
         }
         
         setTimeout(checkVolume, 100);
     };
     
     checkVolume();
+}
+
+// Show low voice warning
+function showLowVoiceWarning() {
+    const infoDisplay = document.getElementById('info-display');
+    if (infoDisplay) {
+        infoDisplay.textContent = 'Voice is too low!';
+        infoDisplay.style.color = 'red';
+        infoDisplay.style.fontWeight = 'bold';
+    }
+}
+
+// Clear low voice warning
+function clearLowVoiceWarning() {
+    const infoDisplay = document.getElementById('info-display');
+    if (infoDisplay) {
+        infoDisplay.textContent = '';
+        infoDisplay.style.color = '';
+        infoDisplay.style.fontWeight = '';
+    }
 }
 
 // Play beep sound using Web Audio API
@@ -213,7 +236,10 @@ function displayProblem(problem) {
     const problemDisplay = document.getElementById('problem-display');
     const answerInput = document.getElementById('answer-input');
     
-    infoDisplay.textContent = `Step ${currentStep} - Problem ${currentProblem + 1}/${PROBLEMS_PER_STEP}`;
+    // Leave info display empty (will show warning in Step 2 if needed)
+    infoDisplay.textContent = '';
+    infoDisplay.style.color = '';
+    infoDisplay.style.fontWeight = '';
     problemDisplay.textContent = `${problem.a} + ${problem.b}`;
     
     answerInput.value = '';
