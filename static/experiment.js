@@ -20,6 +20,7 @@ let firstInputTime = 0;
 let audioContext = null;
 let analyser = null;
 let microphone = null;
+let micStream = null;
 let micCheckInterval = null;
 let lowVolumeTimer = null;
 const LOW_VOLUME_THRESHOLD = 30;
@@ -85,6 +86,7 @@ async function startMicCheck() {
     
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStream = stream;
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         microphone = audioContext.createMediaStreamSource(stream);
@@ -387,16 +389,12 @@ function finishStep() {
             clearTimeout(lowVolumeTimer);
             lowVolumeTimer = null;
         }
-    }
-    
-    if (currentStep < 3) {
-        currentStep++;
-        showStepIntro();
-    } else {
-        // All steps complete, show info form
-        showInfoForm();
         
-        // Clean up microphone
+        // Stop microphone stream to remove browser indicator
+        if (micStream) {
+            micStream.getTracks().forEach(track => track.stop());
+            micStream = null;
+        }
         if (microphone) {
             microphone.disconnect();
             microphone = null;
@@ -405,6 +403,14 @@ function finishStep() {
             audioContext.close();
             audioContext = null;
         }
+    }
+    
+    if (currentStep < 3) {
+        currentStep++;
+        showStepIntro();
+    } else {
+        // All steps complete, show info form
+        showInfoForm();
     }
 }
 
