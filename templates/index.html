@@ -135,6 +135,53 @@
         #mic-status.warning {
             background-color: #FFB6C1;
         }
+        
+        .vviq-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .vviq-section h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .vviq-question {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .vviq-question p {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .vviq-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .vviq-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .vviq-option input[type="radio"] {
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        
+        .vviq-option label {
+            cursor: pointer;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -189,7 +236,27 @@
                 <label for="description">How do you perform mental arithmetic?</label>
                 <textarea id="description" placeholder="Describe your mental arithmetic strategy..."></textarea>
             </div>
-            <button class="button" onclick="submitResults()">Submit Results</button>
+            <button class="button" onclick="showVVIQSurvey()">Continue to Survey</button>
+        </div>
+        
+        <div id="vviq-survey-screen" class="hidden">
+            <h2>Visual Imagery Survey (VVIQ)</h2>
+            <p style="margin: 20px 0; font-size: 16px;">
+                For each item, try to form a mental picture and rate how vivid the image is using the 5-point scale:
+            </p>
+            <div style="margin: 20px 0; font-size: 14px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p><strong>1</strong> = No image at all, you only know that you are thinking of the object</p>
+                <p><strong>2</strong> = Vague and dim</p>
+                <p><strong>3</strong> = Moderately clear and vivid</p>
+                <p><strong>4</strong> = Clear and reasonably vivid</p>
+                <p><strong>5</strong> = Perfectly clear and as vivid as normal vision</p>
+            </div>
+            
+            <div id="vviq-questions" style="text-align: left; max-width: 700px; margin: 0 auto;">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            
+            <button class="button" onclick="submitResults()">Submit All Results</button>
         </div>
         
         <div id="completion-screen" class="hidden">

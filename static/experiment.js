@@ -463,6 +463,109 @@ function showInfoForm() {
     showScreen('info-form-screen');
 }
 
+// VVIQ Survey questions
+const vviqQuestions = [
+    {
+        scenario: "Imagine a relative or friend you see often",
+        questions: [
+            "The exact contours of face, head, shoulders and body.",
+            "Characteristic poses of head, attitudes of body, etc.",
+            "The precise carriage, length of step, etc., in walking.",
+            "The different colors of some familiar clothes."
+        ]
+    },
+    {
+        scenario: "Visualize a rising sun",
+        questions: [
+            "The sun rising above the horizon into a hazy sky.",
+            "The sky clears and surrounds the sun with blueness.",
+            "Clouds: a storm blows up with flashes of lightning.",
+            "A rainbow appears."
+        ]
+    },
+    {
+        scenario: "Imagine the front of a familiar shop",
+        questions: [
+            "The overall appearance of the shop from the opposite side of the road.",
+            "A window display including colours, shapes and details of individual items.",
+            "You are near the entrance: the colour, shape and details of the door.",
+            "Inside at the counter: the assistant serves you and money changes hands."
+        ]
+    },
+    {
+        scenario: "Visualize a country scene",
+        questions: [
+            "The contours of the landscape (trees, mountains, lake).",
+            "The colour and shape of the trees.",
+            "The colour and shape of the lake.",
+            "A strong wind blows on the trees and lake, causing waves."
+        ]
+    }
+];
+
+// Show VVIQ Survey
+function showVVIQSurvey() {
+    const studentId = document.getElementById('student-id').value.trim();
+    const name = document.getElementById('name').value.trim();
+    
+    if (!studentId || !name) {
+        alert('Please fill in Student ID and Name.');
+        return;
+    }
+    
+    showScreen('vviq-survey-screen');
+    
+    // Generate survey questions
+    const questionsContainer = document.getElementById('vviq-questions');
+    questionsContainer.innerHTML = '';
+    
+    vviqQuestions.forEach((section, sectionIndex) => {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'vviq-section';
+        
+        const sectionTitle = document.createElement('h3');
+        sectionTitle.textContent = section.scenario;
+        sectionDiv.appendChild(sectionTitle);
+        
+        section.questions.forEach((question, questionIndex) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'vviq-question';
+            
+            const questionText = document.createElement('p');
+            questionText.textContent = question;
+            questionDiv.appendChild(questionText);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'vviq-options';
+            
+            for (let rating = 1; rating <= 5; rating++) {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'vviq-option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `vviq_${sectionIndex}_${questionIndex}`;
+                input.value = rating;
+                input.id = `vviq_${sectionIndex}_${questionIndex}_${rating}`;
+                input.required = true;
+                
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.textContent = rating;
+                
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+                optionsDiv.appendChild(optionDiv);
+            }
+            
+            questionDiv.appendChild(optionsDiv);
+            sectionDiv.appendChild(questionDiv);
+        });
+        
+        questionsContainer.appendChild(sectionDiv);
+    });
+}
+
 // Submit results
 async function submitResults() {
     const studentId = document.getElementById('student-id').value.trim();
@@ -474,6 +577,43 @@ async function submitResults() {
         return;
     }
     
+    // Collect VVIQ responses
+    const vviqResponses = [];
+    let allAnswered = true;
+    
+    vviqQuestions.forEach((section, sectionIndex) => {
+        const sectionResponses = {
+            scenario: section.scenario,
+            answers: []
+        };
+        
+        section.questions.forEach((question, questionIndex) => {
+            const radioName = `vviq_${sectionIndex}_${questionIndex}`;
+            const selectedRadio = document.querySelector(`input[name="${radioName}"]:checked`);
+            
+            if (selectedRadio) {
+                sectionResponses.answers.push({
+                    question: question,
+                    rating: parseInt(selectedRadio.value)
+                });
+            } else {
+                allAnswered = false;
+            }
+        });
+        
+        vviqResponses.push(sectionResponses);
+    });
+    
+    if (!allAnswered) {
+        alert('Please answer all VVIQ survey questions.');
+        return;
+    }
+    
+    // Calculate VVIQ total score
+    const vviqTotal = vviqResponses.reduce((total, section) => {
+        return total + section.answers.reduce((sum, answer) => sum + answer.rating, 0);
+    }, 0);
+    
     const finalResults = {
         student_id: studentId,
         name: name,
@@ -482,7 +622,11 @@ async function submitResults() {
         step_order: stepOrder,
         step1: results.step1,
         step2: results.step2,
-        step3: results.step3
+        step3: results.step3,
+        vviq_survey: {
+            responses: vviqResponses,
+            total_score: vviqTotal
+        }
     };
     
     try {
