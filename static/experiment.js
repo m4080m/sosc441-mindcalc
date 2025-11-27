@@ -1,5 +1,5 @@
 // Configuration
-const PROBLEMS_PER_STEP = 5;
+const PROBLEMS_PER_STEP = 30;
 
 // Experiment state
 let currentStep = 0;
