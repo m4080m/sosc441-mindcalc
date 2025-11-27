@@ -1,5 +1,6 @@
 // Configuration
-const PROBLEMS_PER_STEP = 30;
+const PROBLEMS_PER_STEP = 5;
+const GRID_SIZE = 4;
 
 // Experiment state
 let currentStep = 0;
@@ -83,7 +84,7 @@ function showStepIntro() {
         startButton.onclick = startMicCheck;
     } else if (currentStep === 3) {
         stepTitle.textContent = 'Addition with Grid Memorization';
-        stepDescription.textContent = 'Memorize a 5x5 grid for 5 seconds, then solve the problem and recall the grid.';
+        stepDescription.textContent = `Memorize a ${GRID_SIZE}x${GRID_SIZE} grid for 5 seconds, then solve the problem and recall the grid.`;
         startButton.textContent = 'Start';
         startButton.onclick = () => startStep(3);
     }
@@ -328,12 +329,14 @@ function showGridMemorization() {
     
     const gridDisplay = document.getElementById('grid-display');
     gridDisplay.innerHTML = '';
+    gridDisplay.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 60px)`;
     
-    // Create 5x5 grid with filled cells based on indices
-    // currentGridProblem contains indices (0-24) of cells that should be filled
+    // Create grid with filled cells based on indices
+    // currentGridProblem contains indices of cells that should be filled
     const filledIndices = new Set(currentGridProblem);
+    const totalCells = GRID_SIZE * GRID_SIZE;
     
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < totalCells; i++) {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         if (filledIndices.has(i)) {
@@ -367,14 +370,15 @@ function showGridRecall() {
     gridRecall.innerHTML = '';
     gridRecall.className = 'grid-display';
     gridRecall.style.display = 'inline-grid';
-    gridRecall.style.gridTemplateColumns = 'repeat(5, 60px)';
+    gridRecall.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 60px)`;
     gridRecall.style.gridGap = '5px';
     
     // Initialize recall state (all empty)
-    gridRecallState = Array(25).fill(false);
+    const totalCells = GRID_SIZE * GRID_SIZE;
+    gridRecallState = Array(totalCells).fill(false);
     
     // Create clickable grid
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < totalCells; i++) {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         cell.dataset.index = i;
@@ -395,9 +399,10 @@ function submitGridRecall() {
     // Calculate accuracy
     // currentGridProblem contains indices of cells that should be filled
     const filledIndices = new Set(currentGridProblem);
+    const totalCells = GRID_SIZE * GRID_SIZE;
     let correct = 0;
     
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < totalCells; i++) {
         const shouldBeFilled = filledIndices.has(i);
         const recalled = gridRecallState[i];
         
@@ -406,7 +411,7 @@ function submitGridRecall() {
         }
     }
     
-    const accuracy = (correct / 25) * 100;
+    const accuracy = (correct / totalCells) * 100;
     
     // Add grid recall data to the last problem result
     const lastResult = results.step3[results.step3.length - 1];

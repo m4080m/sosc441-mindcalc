@@ -3,8 +3,8 @@ import json
 
 data = []
 N = 30
-SIZE = 5
-PICK = 8
+SIZE = 4
+PICK = 6
 
 for i in range(N):
     data.append(random.sample(range(SIZE ** 2), PICK))
