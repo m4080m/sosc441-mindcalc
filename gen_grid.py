@@ -131,4 +131,4 @@ for i in range(N):
     print()
 
 with open('grid_problems.json', 'w') as f:
-    json.dump(data, f, indent=2)
+    json.dump(data, f, indent=2, ensure_ascii=False)
