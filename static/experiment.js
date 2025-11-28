@@ -33,6 +33,14 @@ const LOW_VOLUME_WARNING_TIME = 2000; // 2 seconds
 let currentGridProblem = null;
 let gridRecallState = null;
 
+// Initialize page
+window.addEventListener('DOMContentLoaded', function() {
+    const startDescription = document.getElementById('start-description');
+    if (startDescription) {
+        startDescription.textContent = `This experiment consists of 3 steps with ${PROBLEMS_PER_STEP} problems each.`;
+    }
+});
+
 // Screen management
 function showScreen(screenId) {
     document.querySelectorAll('#container > div').forEach(div => {
