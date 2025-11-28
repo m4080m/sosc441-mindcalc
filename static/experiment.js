@@ -1,5 +1,5 @@
 // Configuration
-const PROBLEMS_PER_STEP = 30;
+const PROBLEMS_PER_STEP = 20;
 const GRID_SIZE = 4;
 
 // Experiment state
