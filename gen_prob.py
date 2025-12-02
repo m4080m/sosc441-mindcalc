@@ -127,7 +127,7 @@ if __name__ == "__main__":
     sets = generate_sets(
         n_sets=3,
         allowed_digits=range(1, 10),             # 각 자리 1~8
-        target_per_carry={0: 7, 1: 8, 2: 8, 3: 7},  # 한 세트 30문항
+        target_per_carry={0: 5, 1: 5, 2: 5, 3: 5},  # 한 세트 20문항
         seed=42
     )
 

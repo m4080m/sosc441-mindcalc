@@ -103,10 +103,10 @@ def generate_grid_problem(size, pick, target_chunks, max_attempts=1000):
     return selected
 
 data = []
-N = 30
+N = 20
 SIZE = 4
 PICK = 6
-CHUNK = (4, 6)  # Single value or use (min, max) for range
+CHUNK = (3, 3)  # Single value or use (min, max) for range
 
 for i in range(N):
     # If CHUNK is a tuple/list, pick a random value in that range
