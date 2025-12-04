@@ -37,6 +37,9 @@ instance/
 # Results - keep directory but ignore contents
 results/*.json
 
+# Certificates - will be mounted as volume
+certs/
+
 # IDE
 .vscode/
 .idea/

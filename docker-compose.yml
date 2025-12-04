@@ -8,6 +8,7 @@ services:
       - "53318:53318"
     volumes:
       - ./results:/app/results
+      - ./certs:/app/certs
     restart: unless-stopped
     environment:
       - FLASK_ENV=production

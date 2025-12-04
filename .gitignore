@@ -33,6 +33,10 @@ instance/
 # Results
 results/*.json
 
+# SSL Certificates
+certs/
+*.pem
+
 # IDE
 .vscode/
 .idea/

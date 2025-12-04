@@ -45,4 +45,19 @@ def save_results():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 53318))
-    app.run(host='0.0.0.0', debug=False, port=port)
+    
+    # Check if SSL certificates exist
+    cert_file = 'certs/cert.pem'
+    key_file = 'certs/key.pem'
+    
+    if os.path.exists(cert_file) and os.path.exists(key_file):
+        # Run with HTTPS
+        print(f"Starting HTTPS server on https://0.0.0.0:{port}")
+        app.run(host='0.0.0.0', debug=False, port=port, 
+                ssl_context=(cert_file, key_file))
+    else:
+        # Run with HTTP (for development)
+        print(f"Warning: SSL certificates not found. Running HTTP server.")
+        print(f"Run ./generate_cert.sh to create SSL certificates for HTTPS.")
+        print(f"Starting HTTP server on http://0.0.0.0:{port}")
+        app.run(host='0.0.0.0', debug=False, port=port)

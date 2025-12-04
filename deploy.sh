@@ -9,8 +9,18 @@ COMMAND=${1:-start}
 case "$COMMAND" in
     start)
         echo "Starting Mental Arithmetic Experiment..."
+        
+        # Check if SSL certificates exist
+        if [ ! -f "certs/cert.pem" ] || [ ! -f "certs/key.pem" ]; then
+            echo "SSL certificates not found. Generating..."
+            ./generate_cert.sh
+        fi
+        
         docker-compose up -d
-        echo "Application is running on http://localhost:53318"
+        echo "Application is running on https://localhost:53318"
+        echo ""
+        echo "Note: Your browser will show a security warning for self-signed certificate."
+        echo "Click 'Advanced' and 'Proceed' to continue."
         ;;
     stop)
         echo "Stopping application..."
@@ -30,7 +40,7 @@ case "$COMMAND" in
         docker-compose down
         docker-compose build --no-cache
         docker-compose up -d
-        echo "Application rebuilt and running on http://localhost:53318"
+        echo "Application rebuilt and running on https://localhost:53318"
         ;;
     status)
         docker-compose ps
