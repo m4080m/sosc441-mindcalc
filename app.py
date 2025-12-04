@@ -44,4 +44,5 @@ def save_results():
     return jsonify({'success': True, 'filename': filename})
 
 if __name__ == '__main__':
-    app.run(debug=False, port=53318)
+    port = int(os.environ.get('PORT', 53318))
+    app.run(host='0.0.0.0', debug=False, port=port)

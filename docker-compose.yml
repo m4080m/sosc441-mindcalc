@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  mindcalc:
+    build: .
+    container_name: mindcalc-app
+    ports:
+      - "53318:53318"
+    volumes:
+      - ./results:/app/results
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
