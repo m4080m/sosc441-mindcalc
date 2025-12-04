@@ -12,6 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY . .
+COPY entrypoint.sh .
+
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
 
 # Create results and certs directories
 RUN mkdir -p results certs
@@ -23,20 +27,6 @@ EXPOSE 53318
 ENV FLASK_APP=app.py
 ENV PYTHONUNBUFFERED=1
 
-# Run the application with gunicorn for production
-# Use SSL if certificates are available
-CMD if [ -f /app/certs/cert.pem ] && [ -f /app/certs/key.pem ]; then \
-        echo "Starting with HTTPS..." && \
-        gunicorn --bind 0.0.0.0:53318 \
-                 --workers 4 \
-                 --timeout 120 \
-                 --certfile=/app/certs/cert.pem \
-                 --keyfile=/app/certs/key.pem \
-                 app:app; \
-    else \
-        echo "SSL certificates not found. Starting with HTTP..." && \
-        gunicorn --bind 0.0.0.0:53318 \
-                 --workers 4 \
-                 --timeout 120 \
-                 app:app; \
-    fi
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
